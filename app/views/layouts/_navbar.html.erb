@@ -1,0 +1,362 @@
+<!-- Mobile Navigation -->
+<nav class="fixed bottom-0 left-0 right-0 z-50 md:hidden
+            bg-white dark:bg-gray-900
+            border-t border-gray-200 dark:border-gray-700
+            transition-colors duration-300"
+     style="background-color: rgb(255 255 255); border-color: rgb(229 231 235);"
+     data-theme-bg="white"
+     data-theme-bg-dark="gray-900">
+
+  <div class="flex justify-around items-center py-2">
+
+    <%= link_to root_path, class: "flex flex-col items-center p-2 text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors" do %>
+      <i class="fas fa-home text-xl mb-1"></i>
+    <% end %>
+
+    <% if current_user && !current_page?(edit_user_registration_path) %>
+      <%= link_to new_post_path, class: "flex flex-col items-center p-2 text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors" do %>
+        <i class="fas fa-camera text-xl mb-1"></i>
+      <% end %>
+    <% end %>
+     <!-- Messages -->
+    <%= link_to messages_path, class: "relative flex flex-col items-center text-gray-600 dark:text-gray-300 hover:text-blue-500 transition" do %>
+      <i class="fas fa-comment-dots text-lg"></i>
+      <% if current_user.unread_messages_count > 0 %>
+        <span class="absolute top-0 right-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-red-600 text-white leading-tight">
+          <%= current_user.unread_messages_count %>
+        </span>
+      <% end %>
+    <% end %>
+
+    <% if user_signed_in? %>
+      <% unread_count = current_user.notifications.unread.count %>
+      <%= link_to notifications_path, class: "relative flex flex-col items-center p-2 text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors" do %>
+        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"></path>
+        </svg>
+        <% if unread_count > 0 %>
+          <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center">
+            <%= unread_count %>
+          </span>
+        <% end %>
+      <% end %>
+    <% end %>
+
+    <%# Mobile Search Icon/Button %>
+    <%= link_to search_path, class: "flex flex-col items-center p-2 text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors" do %>
+      <i class="fas fa-search text-xl mb-1"></i>
+    <% end %>
+
+    <% if current_user %>
+      <%= link_to profile_path(@user), class: "flex flex-col items-center p-2 text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors" do %>
+        <div class="w-6 h-6 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center overflow-hidden">
+          <% if current_user.avatar.attached? %>
+            <%= image_tag current_user.avatar, class: "w-full h-full rounded-full object-cover" %>
+          <% else %>
+            <i class="fas fa-user text-xs text-gray-600 dark:text-gray-400"></i>
+          <% end %>
+        </div>
+      <% end %>
+    <% end %>
+
+    <div data-controller="dropdown" class="relative">
+      <button data-action="click->dropdown#toggle" data-dropdown-target="trigger"
+              class="flex flex-col items-center p-2 text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors">
+        <i class="fas fa-bars text-xl mb-1"></i>
+      </button>
+
+      <div data-dropdown-target="menu"
+           class="absolute bottom-full mb-2 right-0 w-64 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 shadow-xl hidden">
+        <% if current_user %>
+          <div class="py-2">
+            <%= link_to edit_user_registration_path, class: "flex items-center px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-700 dark:hover:bg-gray-400 transition-colors" do %>
+              <i class="fas fa-cog w-5 text-base mr-3"></i>
+              <span class="text-sm">Settings</span>
+            <% end %>
+            
+            <%= link_to blocked_users_path, class: "flex items-center px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-700 dark:hover:bg-gray-400 transition-colors" do %>
+              <svg class="w-4 h-4 mr-3 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728"></path>
+              </svg>
+              <span class="text-sm">Blocked Users</span>
+              <% if current_user.blocked_users.any? %>
+                <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
+                  <%= current_user.blocked_users.count %>
+                </span>
+              <% end %>
+            <% end %>
+
+            <% if current_user.admin? %>
+              <%= link_to admin_root_path, class: "flex items-center px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-700 dark:hover:bg-gray-400 transition-colors" do %>
+                <i class="fas fa-user-shield w-5 text-base mr-3"></i>
+                <span class="text-sm">Admin Dashboard</span>
+              <% end %>
+            <% end %>
+            
+            <button data-controller="theme" data-action="click->theme#toggle" data-theme-toggle
+                    class="flex items-center px-4 py-3 w-full text-left text-gray-700 dark:text-gray-300 hover:bg-gray-700 dark:hover:bg-gray-400 transition-colors">
+              <i class="fas fa-moon w-5 text-base mr-3 block" data-theme-target="moonIcon"></i>
+              <span class="text-sm">Switch to dark mode</span>
+            </button>
+          </div>
+          
+          <div class="border-t border-gray-300 dark:border-gray-600 my-1"></div>
+
+          <div class="py-2">
+            <%= link_to "Log out", destroy_user_session_path, 'data-turbo-method': :delete,
+                class: "block w-full text-left px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-700 dark:hover:bg-gray-400 transition-colors" %>
+          </div>
+        <% else %>
+          <div class="p-4 space-y-2">
+            <%= link_to 'Sign up', new_user_registration_path,
+                class: "block w-full text-center bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md transition-colors" %>
+            <%= link_to 'Log in', new_user_session_path,
+                class: "block w-full text-center border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-400 text-gray-700 dark:text-gray-300 font-medium py-2 px-4 rounded-md transition-colors" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</nav>
+<!-- Desktop Navigation -->
+<nav class="hidden md:flex fixed top-0 left-0 h-full w-64 lg:w-72 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 flex-col z-50 transition-colors duration-300"
+     style="background-color: rgb(255 255 255); border-color: rgb(229 231 235);"
+     data-theme-bg="white"
+     data-theme-bg-dark="gray-900">
+
+  <div class="p-4 lg:p-6">
+    <%= link_to root_path, class: "text-xl lg:text-2xl font-bold italic text-gray-900 dark:text-white hover:text-blue-500 dark:hover:text-blue-400 transition-colors" do %>
+      <i class="fab fa-instagram text-xl text-gray-900 dark:text-white"></i> InstaClone
+    <% end %>
+  </div>
+
+  <div class="flex-1 py-4">
+    <ul class="space-y-1 lg:space-y-2">
+      <li>
+        <%= link_to root_path, class: "flex items-center px-4 lg:px-6 py-2 lg:py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-700 dark:hover:bg-gray-400 transition-colors rounded-md" do %>
+          <i class="fas fa-home w-5 lg:w-6 text-base lg:text-lg mr-3 lg:mr-4"></i>
+          <span class="text-sm lg:text-base">Home</span>
+        <% end %>
+      </li>
+
+      <%# Desktop Search Form %>
+      <li>
+        <%= link_to search_path, class: "flex items-center px-4 lg:px-6 py-2 lg:py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-700 dark:hover:bg-gray-400 transition-colors rounded-md" do %>
+          <i class="fas fa-search w-5 lg:w-6 text-base lg:text-lg mr-3 lg:mr-4"></i>
+          <span class="text-sm lg:text-base">Search</span>
+        <% end %>
+      </li>
+
+      <% if current_user && !current_page?(edit_user_registration_path) %>
+        <li>
+          <%= link_to new_post_path, class: "flex items-center px-4 lg:px-6 py-2 lg:py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-700 dark:hover:bg-gray-400 transition-colors rounded-md" do %>
+            <i class="fas fa-camera w-5 lg:w-6 text-base lg:text-lg mr-3 lg:mr-4"></i>
+            <span class="text-sm lg:text-base">Create</span>
+          <% end %>
+        </li>
+      <% end %>
+
+      <li>
+        <%= link_to messages_path, class: "flex items-center px-4 lg:px-6 py-2 lg:py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-700 dark:hover:bg-gray-400 transition-colors rounded-md relative" do %>
+          <svg class="w-5 lg:w-6 text-base lg:text-lg mr-3 lg:mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+          </svg>
+          <span class="text-sm lg:text-base">Messages</span>
+
+          <% if current_user.unread_messages_count > 0 %>
+            <span class="absolute top-1 right-1 text-[10px] lg:text-xs font-semibold px-1.5 py-0.5 rounded-full bg-red-600 text-white leading-tight">
+              <%= current_user.unread_messages_count %>
+            </span>
+          <% end %>
+        <% end %>
+      </li>
+      <% if user_signed_in? %>
+        <li>
+          <% unread_count = current_user.notifications.unread.count %>
+          <%= link_to notifications_path, class: "flex items-center px-4 lg:px-6 py-2 lg:py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-700 dark:hover:bg-gray-400 transition-colors rounded-md relative" do %>
+            <svg class="w-5 lg:w-6 text-base lg:text-lg mr-3 lg:mr-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+              <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"></path>
+            </svg>
+            <span class="text-sm lg:text-base">Notifications</span>
+            <% if unread_count > 0 %>
+              <span class="absolute top-1 right-1 text-[10px] lg:text-xs font-semibold px-1.5 py-0.5 rounded-full bg-red-600 text-white leading-tight">
+                <%= unread_count %>
+              </span>
+            <% end %>
+          <% end %>
+        </li>
+      <% end %>
+      <% if current_user %>
+        <li>
+          <%= link_to profile_path, class: "flex items-center px-4 lg:px-6 py-2 lg:py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-700 dark:hover:bg-gray-400  transition-colors rounded-md" do %>
+            <div class="w-6 h-6 bg-gray-300 dark:bg-gray-600 rounded-full mr-3 lg:mr-4 overflow-hidden flex items-center justify-center">
+              <% if current_user.avatar.attached? %>
+                <%= image_tag current_user.avatar, class: "w-full h-full rounded-full object-cover" %>
+              <% else %>
+                <i class="fas fa-user text-xs text-gray-600 dark:text-gray-400"></i>
+              <% end %>
+            </div>
+            <span class="text-sm lg:text-base">Profile</span>
+          <% end %>
+        </li>
+      <% end %>
+     <% if current_user.admin? %>
+        <li>
+          <%= link_to admin_root_path, class: "flex items-center px-4 lg:px-6 py-2 lg:py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-700 dark:hover:bg-gray-400 transition-colors rounded-md" do %>
+            <i class="fas fa-user-shield w-5 lg:w-6 text-base lg:text-lg mr-3 lg:mr-4"></i>
+            <span class="text-sm lg:text-base">Admin</span>
+          <% end %>
+        </li>
+      <% end %>
+
+    </ul>
+  </div>
+
+  <% if current_user %>
+    <div class="px-6 py-4 ">
+      <div data-controller="dropdown" class="relative flex items-center w-full py-2 text-gray-700 dark:text-gray-300 transition-colors text-left hover:bg-gray-700 dark:hover:bg-gray-400 rounded-md">
+        <button data-action="click->dropdown#toggle" data-dropdown-target="trigger"
+                class="flex items-center w-full">
+          <i class="fas fa-bars w-5 text-base mr-3"></i>
+          <span class="text-sm">More</span>
+        </button>
+
+        <div data-dropdown-target="menu"
+            class="absolute bottom-full mb-2 left-0 w-64 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 shadow-xl hidden">
+          <%= link_to edit_user_registration_path, class: "flex items-center px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-700 dark:hover:bg-gray-400  transition-colors" do %>
+            <i class="fas fa-cog w-5 text-base mr-3"></i>
+            <span class="text-sm">Settings</span>
+          <% end %>
+
+          <%= link_to blocked_users_path, class: "flex items-center px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-700 dark:hover:bg-gray-400 transition-colors" do %>
+            <svg class="w-4 h-4 mr-3 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728"></path>
+            </svg>
+            Blocked Users
+            <% if current_user.blocked_users.any? %>
+              <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
+                <%= current_user.blocked_users.count %>
+              </span>
+            <% end %>
+          <% end %>
+
+
+          <div class="py-2 hover:bg-gray-700 dark:hover:bg-gray-400">
+            <button data-controller="theme" data-action="click->theme#toggle" data-theme-toggle
+                    class="flex items-center px-4 py-3 w-full text-left text-gray-700 dark:text-gray-300 hover:bg-gray-700 dark:hover:bg-gray-400 transition-colors">
+              <i class="fas fa-moon w-5 text-base mr-3 block "></i>
+              <span class="text-sm">Switch to dark mode</span>
+            </button>
+          </div>
+
+          <div class="border-t border-gray-300 dark:border-gray-600 my-1"></div>
+
+          <div class="py-2 hover:bg-gray-700 dark:hover:bg-gray-400">
+            <%= link_to "Log out", destroy_user_session_path, 'data-turbo-method': :delete,
+                class: "block w-full text-left px-4 py-3 text-sm text-gray-700 dark:text-gray-300 transition-colors" %>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</nav>
+<div id="search_results_modal" class="fixed inset-0 bg-black bg-opacity-50 hidden justify-center items-center z-50">
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto relative">
+    <button id="close_search_modal" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+    <%# This turbo-frame will be updated with search results %>
+    <turbo-frame id="search_results">
+      <%# Initial content when the modal opens without a search %>
+      <div class="text-center py-8 text-gray-600 dark:text-gray-400">Enter a query to search for users and posts.</div>
+    </turbo-frame>
+  </div>
+</div>
+
+<script>
+  // JavaScript to handle the search modal's visibility and behavior
+  document.addEventListener('turbo:load', () => {
+    // Select the search form from the desktop navigation
+    const desktopSearchForm = document.querySelector('nav.hidden.md\\:flex form[data-turbo-frame="search_results"]');
+    // Select the search button from the mobile navigation
+    const mobileSearchButton = document.getElementById('mobile_search_button');
+
+    const searchModal = document.getElementById('search_results_modal');
+    const closeModalButton = document.getElementById('close_search_modal');
+    // Select the search input within the modal (which is the one that will be used for actual search)
+    const modalSearchInput = searchModal.querySelector('input[name="query"]');
+
+    // Function to show the modal
+    const showSearchModal = () => {
+      searchModal.classList.remove('hidden');
+      searchModal.classList.add('flex'); // Use flex to center the modal
+      modalSearchInput.focus(); // Focus the input when modal opens
+    };
+
+    // Function to hide the modal and clear results
+    const hideSearchModal = () => {
+      searchModal.classList.add('hidden');
+      searchModal.classList.remove('flex');
+      // Clear search input and reset search results frame
+      modalSearchInput.value = ''; // Clear the input inside the modal
+      const searchResultsFrame = document.getElementById('search_results');
+      if (searchResultsFrame) {
+        searchResultsFrame.innerHTML = '<div class="text-center py-8 text-gray-600 dark:text-gray-400">Enter a query to search for users and posts.</div>';
+      }
+    };
+
+    // Event listener for desktop search form submission
+    if (desktopSearchForm) {
+      desktopSearchForm.addEventListener('submit', (event) => {
+        event.preventDefault(); // Prevent default form submission
+        showSearchModal();
+        // Manually trigger the search within the modal's input
+        // This ensures the query from the desktop input is used in the modal's search
+        modalSearchInput.value = desktopSearchForm.querySelector('input[name="query"]').value;
+        // Trigger a form submission on the modal's internal search form
+        // Assuming the modal has its own form or the turbo-frame handles it
+        const modalSearchForm = searchModal.querySelector('form[data-turbo-frame="search_results"]');
+        if (modalSearchForm) {
+          modalSearchForm.requestSubmit();
+        }
+      });
+    }
+
+    // Event listener for mobile search button click
+    if (mobileSearchButton) {
+      mobileSearchButton.addEventListener('click', () => {
+        showSearchModal();
+      });
+    }
+
+    // When the close button is clicked, hide the modal and clear results
+    if (closeModalButton) {
+      closeModalButton.addEventListener('click', hideSearchModal);
+    }
+
+    // Close modal if clicking outside the content area
+    if (searchModal) {
+      searchModal.addEventListener('click', (event) => {
+        if (event.target === searchModal) { // Check if the click was directly on the modal background
+          hideSearchModal();
+        }
+      });
+    }
+
+    // Optional: Live search as user types within the modal (uncomment if desired, but consider performance)
+    // if (modalSearchInput) {
+    //   modalSearchInput.addEventListener('input', () => {
+    //     // Only submit if the query is not empty to avoid excessive requests
+    //     if (modalSearchInput.value.length > 0) {
+    //       const modalSearchForm = searchModal.querySelector('form[data-turbo-frame="search_results"]');
+    //       if (modalSearchForm) {
+    //         modalSearchForm.requestSubmit();
+    //       }
+    //     }
+    //   });
+    // }
+  });
+</script>

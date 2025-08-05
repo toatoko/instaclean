@@ -1,0 +1,69 @@
+<!-- app/views/layouts/application.html.erb -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for(:title) || "Insta Clone" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.png">
+    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= turbo_include_tags %>
+    <%= javascript_importmap_tags %>
+    <script src="https://code.iconify.design/iconify-icon/1.0.8/iconify-icon.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tw-elements/dist/css/tw-elements.min.css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+  </head>
+
+  <body class="bg-gray-100 dark:bg-black text-gray-900 dark:text-white transition-colors duration-300" data-controller="theme">
+
+    <% if user_signed_in? %>
+      <%= render 'layouts/navbar' %>
+    <% end %>
+    <!-- Flash messages -->
+    <% if notice %>
+      <div class="fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-md shadow-lg z-50 md:top-4 md:right-4">
+        <%= notice %>
+      </div>
+    <% end %>
+
+    <% if alert %>
+      <div class="fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-md shadow-lg z-50 md:top-4 md:right-4">
+        <%= alert %>
+      </div>
+    <% end %>
+
+    <main class="pt-4 md:pt-8 pb-16 md:pb-0 <%= 'md:pl-64 lg:pl-72' if user_signed_in? %>">
+      <%= render 'layouts/report_modal' %> <%# The modal is rendered here once %>
+      <%= yield %>
+    </main>
+  </body>
+  <script>
+    function copyPostLink(button) {
+      const link = button.dataset.copyLink;
+      const tooltip = button.parentElement.querySelector('[id^="tooltip-for"]');
+
+      navigator.clipboard.writeText(link).then(() => {
+        // Show tooltip
+        tooltip.style.opacity = "1";
+
+        // Hide tooltip after 1.5s
+        setTimeout(() => {
+          tooltip.style.opacity = "0";
+        }, 1500);
+      }).catch(() => {
+        // Changed alert() to console.error() for better dev experience
+        console.error("Failed to copy link.");
+      });
+    }
+  </script>
+</html>

@@ -1,0 +1,22 @@
+<% if current_user && current_user != user %>
+  <% is_following = current_user.following?(user) %>
+  <% if is_following %>
+    <%= link_to user_unfollows_path(user.username), 'data-turbo-method': :delete,
+        data: { turbo: true },
+        class: "flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-gray-800 dark:text-white text-sm font-medium rounded-lg transition-colors duration-200" do %>
+      <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+      </svg>
+      Following
+    <% end %>
+  <% else %>
+    <%= link_to user_follows_path(user.username), 'data-turbo-method': :post,
+        data: { turbo: true },
+        class: "flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors duration-200" do %>
+      <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+      </svg>
+      Follow
+    <% end %>
+  <% end %>
+<% end %>

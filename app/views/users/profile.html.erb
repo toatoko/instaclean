@@ -1,0 +1,236 @@
+<div class="">
+  <div class="max-w-4xl mx-auto px-4 py-6">
+    <div class="flex flex-col md:flex-row items-start md:items-center gap-6">
+      <!-- Profile Image -->
+      <div class="relative">
+        <% if @user.avatar.attached? %>
+          <%= image_tag @user.avatar.variant(resize_to_fill: [128, 128]),
+                        alt: @user.username,
+                        class: "w-24 h-24 md:w-32 md:h-32 rounded-full object-cover border-2 border-gray-200 dark:border-gray-700" %>
+        <% else %>
+          <div class="w-24 h-24 md:w-32 md:h-32 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center border-2 border-gray-200 dark:border-gray-700">
+            <span class="text-gray-600 dark:text-gray-300 text-2xl font-medium">
+              <%= @user.username.first.upcase %>
+            </span>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Profile Info -->
+      <div class="flex-1">
+        <div class="flex flex-col md:flex-row md:items-center gap-4 mb-4">
+          <h1 class="text-xl md::text-2xl font-light text-gray-900 dark:text-white"><%= @user.username %></h1>
+
+          <!-- Action Buttons -->
+          <div class="flex gap-2">
+            <% if current_user == @user %>
+              <%= link_to "Edit profile", edit_user_registration_path,
+                          class: "px-4 py-1.5 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded transition-colors" %>
+
+            <% else %>
+              <%= render "users/follow_button" %>
+              <%= link_to "Message", conversation_path(@user.username),
+                class: "inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+            <% end %>
+
+            <% if user_signed_in? && current_user != @user %>
+              <div class="relative" data-controller="dropdown">
+                <button type="button"
+                        class="p-1.5 rounded text-black dark:text-white"
+                        data-action="click->dropdown#toggle"
+                        aria-expanded="false">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  </svg>
+                </button>
+
+                <div data-dropdown-target="menu"
+                    class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg z-50 border border-gray-200 dark:border-gray-700">
+                  <div class="py-1">
+
+                    <!-- Regular user actions (only show if not blocked) -->
+                    <% unless @blocked_by || @is_blocked %>
+                      <button type="button"
+                              data-controller="report-button"
+                              data-action="click->report-button#triggerReportModal"
+                              data-report-button-reportable-type-value="User"
+                              data-report-button-reportable-id-value="<%= @user.id %>"
+                              class="w-full text-left px-4 py-2 text-sm text-yellow-700 dark:text-yellow-400 hover:bg-gray-100 dark:hover:bg-gray-700">
+                        Report User
+                      </button>
+                    <% end %>
+
+                    <!-- USER BLOCKING (any user can block any other user) -->
+                    <% if current_user && current_user != @user %>
+                      <% if @is_blocked %>
+                        <%= button_to "Unblock User", user_block_path(@user.username),
+                            method: :delete,
+                            data: { turbo_confirm: "Are you sure you want to unblock this user?" },
+                            class: "w-full text-left px-4 py-2 text-sm text-green-600 dark:text-green-400 hover:bg-gray-100 dark:hover:bg-gray-700" %>
+                      <% elsif @blocked_by %>
+                        <div class="w-full text-left px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                          This user has blocked you
+                        </div>
+                      <% else %>
+                        <%= button_to "Block User", user_block_path(@user.username),
+                            method: :post,
+                            data: { turbo_confirm: "Are you sure you want to block this user? You won't see each other's content." },
+                            class: "w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700" %>
+                      <% end %>
+                    <% end %>
+
+                    <!-- ADMIN BAN FUNCTIONALITY (only admins can site-ban users) -->
+                    <% if current_user&.admin? && current_user != @user %>
+                      <hr class="my-1 border-gray-200 dark:border-gray-700">
+                      <div class="px-2 py-1">
+                        <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Admin Actions:</span>
+                      </div>
+                      
+                      <% if @user.banned? %>
+                        <div class="px-4 py-1 text-xs text-gray-500 dark:text-gray-400">
+                          Banned by: <%= @user.banned_by&.username %>
+                        </div>
+                        <%= button_to "Unban from Site", admin_user_ban_path(@user.username),
+                            method: :delete,
+                            data: { turbo_confirm: "Are you sure you want to unban this user from the entire site?" },
+                            class: "w-full text-left px-4 py-2 text-sm text-blue-600 dark:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700" %>
+                      <% else %>
+                        <%= button_to "Ban from Site", admin_user_ban_path(@user.username),
+                            method: :post,
+                            data: { turbo_confirm: "Are you sure you want to ban this user from the entire site? They won't be able to log in." },
+                            class: "w-full text-left px-4 py-2 text-sm text-purple-600 dark:text-purple-400 hover:bg-gray-100 dark:hover:bg-gray-700" %>
+                      <% end %>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="flex gap-6 mb-4">
+          <div class="text-sm">
+            <span class="font-semibold text-gray-900 dark:text-white"><%= @posts.count %></span>
+            <span class="text-gray-500 dark:text-gray-400 ml-1">posts</span>
+          </div>
+          <div class="text-sm">
+            <span class="font-semibold text-gray-900 dark:text-white"><%= @user.followers_count %></span>
+            <span class="text-gray-500 dark:text-gray-400 ml-1">followers</span>
+          </div>
+          <div class="text-sm">
+            <span class="font-semibold text-gray-900 dark:text-white"><%= @user.following_count %></span>
+            <span class="text-gray-500 dark:text-gray-400 ml-1">following</span>
+          </div>
+        </div>
+
+        <!-- Bio -->
+        <div class="text-sm text-gray-900 dark:text-white">
+          <% if @user.first_name.present? %>
+            <div class="font-semibold mb-1"><%= @user.first_name %></div>
+          <% end %>
+
+          <% if @user.bio.present? %>
+            <div class=""><%= simple_format(@user.bio) %></div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Navigation Tabs -->
+<div class="w-220 border-t border-gray-300 dark:border-gray-600 my-0 mx-auto mt-10"></div>
+<div class="">
+  <div class="max-w-4xl mx-auto px-4">
+    <div class="flex justify-center">
+      <div class="flex">
+        <%= link_to profile_path(@user.username),
+                    class: "flex items-center gap-2 px-4 py-3 #{'border-t-2 border-gray-900 dark:border-white text-gray-900 dark:text-white' if params[:tab].blank?} #{'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200' if params[:tab].present?} text-sm font-medium" do %>
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M3 3h18v18H3V3zm16 16V5H5v14h14zM11 7h2v2h-2V7zm0 4h2v2h-2v-2zm0 4h2v2h-2v-2zM7 7h2v2H7V7zm0 4h2v2H7v-2zm0 4h2v2H7v-2zm8-8h2v2h-2V7zm0 4h2v2h-2v-2zm0 4h2v2h-2v-2z"/>
+          </svg>
+          POSTS
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Posts Grid -->
+<div class="max-w-4xl mx-auto px-4 py-6">
+  <% if @posts.any? %>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1">
+      <% @posts.each do |post| %>
+        <div class="aspect-square bg-gray-200 dark:bg-gray-800 relative group cursor-pointer rounded-lg ">
+          <%= link_to post_path(post), class: "block w-full h-full" do %>
+            <% if post.image.attached? %>
+              <%= image_tag post.image.variant(resize_to_fill: [400, 400]),
+                  alt: "Post by #{@user.username}",
+                  class: "w-full h-full object-cover rounded-lg" %>
+            <% end %>
+
+            <div class="absolute inset-0 bg-opacity-0 group-hover:bg-opacity-30 transition-opacity flex items-center justify-center">
+              <div class="opacity-0 group-hover:opacity-100 flex items-center gap-6 text-white">
+                <div class="flex items-center gap-2">
+                  <svg class="w-5 h-5 " fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                  </svg>
+                  <span class="text-sm font-semibold"><%= post.likes_count %></span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <svg class="w-5 h-5 " fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M21.99 4c0-1.1-.89-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18zM18 14H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+                  </svg>
+                  <span class="text-sm font-semibold"><%= post.comments_count %></span>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <!-- No posts state -->
+    <div class="text-center py-12">
+      <div class="mx-auto w-24 h-24 mb-4">
+        <svg class="w-full h-full text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+        </svg>
+      </div>
+      <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">No Posts Yet</h3>
+      <p class="text-gray-500 dark:text-gray-400 mb-4">When <%= @user.username %> shares photos, you'll see them here.</p>
+      <% if current_user == @user %>
+        <%= link_to "Share your first photo", new_post_path,
+                    class: "inline-flex items-center px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition-colors" %>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+
+<!-- Loading more posts (infinite scroll placeholder) -->
+<div id="loading-posts" class="hidden text-center py-8">
+  <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+</div>
+
+<script>
+  // Optional: Add infinite scroll functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    // Intersection Observer for infinite scroll
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+        }
+      });
+    });
+
+    const loadingElement = document.getElementById('loading-posts');
+    if (loadingElement) {
+      observer.observe(loadingElement);
+    }
+  });
+</script>

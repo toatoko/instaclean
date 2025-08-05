@@ -1,0 +1,91 @@
+
+<div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+  <!-- Header -->
+  <div class="mb-8 ">
+    <h2 class="text-2xl font-bold text-black dark:text-white mb-2">Your Blocked Users</h2>
+    <p class="text-black dark:text-white ">Manage users you have blocked. You can unblock them anytime.</p>
+  </div>
+
+  <!-- Stats -->
+  <div class="bg-white rounded-lg shadow p-6 mb-6">
+    <div class="flex items-center">
+      <div class="bg-red-100 rounded-full p-3">
+        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728"></path>
+        </svg>
+      </div>
+      <div class="ml-4">
+        <h3 class="text-lg font-medium text-gray-900">Total Blocked Users</h3>
+        <p class="text-3xl font-bold text-red-600"><%= @total_blocked_users %></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Blocked Users List -->
+  <div class="bg-white shadow rounded-lg">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h3 class="text-lg font-medium text-gray-900">Blocked Users</h3>
+    </div>
+    
+    <% if @blocked_users.any? %>
+      <div class="divide-y divide-gray-200">
+        <% @blocked_users.each do |user| %>
+          <div class="p-6 flex items-center justify-between hover:bg-gray-50" id="user-<%= user.id %>">
+            <div class="flex items-center">
+              <% if user.avatar.attached? %>
+                <%= image_tag user.avatar, class: "h-12 w-12 rounded-full object-cover", alt: "#{user.username} avatar" %>
+              <% else %>
+                <div class="h-12 w-12 rounded-full bg-gray-300 flex items-center justify-center">
+                  <svg class="w-8 h-8 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z"/>
+                  </svg>
+                </div>
+              <% end %>
+              <div class="ml-4">
+                <h4 class="text-sm font-medium text-gray-900"><%= user.username %></h4>
+                <% if user.full_name.present? %>
+                  <p class="text-sm text-gray-500"><%= user.full_name %></p>
+                <% end %>
+              </div>
+            </div>
+            <div class="flex items-center space-x-3">
+              <% 
+                # Find when this user was blocked
+                block_relation = current_user.blocking_relationships.find_by(blocked: user)
+                blocked_date = block_relation&.created_at || Time.current
+              %>
+              <span class="text-sm text-gray-500">
+                Blocked <%= time_ago_in_words(blocked_date) %> ago
+              </span>
+              <%= button_to "Unblock", user_block_path(user), 
+                  method: :delete,
+                  class: "bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200",
+                  data: { 
+                    turbo_method: :delete,
+                    turbo_confirm: "Are you sure you want to unblock #{user.username}?"
+                  } %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Pagination -->
+      <% if respond_to?(:paginate) && @blocked_users.respond_to?(:current_page) %>
+        <div class="px-6 py-4 border-t border-gray-200">
+          <%= paginate @blocked_users %>
+        </div>
+      <% end %>
+
+    <% else %>
+      <!-- Empty state -->
+      <div class="p-12 text-center">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">No blocked users</h3>
+        <p class="mt-1 text-sm text-gray-500">You haven't blocked any users yet.</p>
+        <%= link_to "Browse Users", suggested_followers_path, class: "mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200" %>
+      </div>
+    <% end %>
+  </div>
+</div>

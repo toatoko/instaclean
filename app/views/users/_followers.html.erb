@@ -1,0 +1,40 @@
+<!-- User Header -->
+<div class="flex items-center px-1 py-3 space-x-3">
+  <%= link_to profile_path, class: "flex items-center space-x-3" do %>
+    <% if current_user.avatar.attached? %>
+      <%= image_tag current_user.avatar.variant(resize_to_fill: [40, 40]),
+          alt: "#{current_user.username}'s avatar",
+          class: "h-10 w-10 rounded-full object-cover",
+          loading: "lazy" %>
+    <% end %>
+  <% end %>
+
+  <div class="flex-1">
+    <%= link_to profile_path do %>
+      <p class="text-sm font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+        <%= current_user.username %>
+      </p>
+    <% end %>
+    <p class="text-xs text-gray-500 dark:text-gray-400">
+      <%= current_user.first_name.capitalize %>
+    </p>
+  </div>
+</div>
+
+<!-- Suggested Header -->
+<div class="flex items-center justify-between mt-3 ml-2">
+  <p class="text-sm font-semibold text-gray-900 dark:text-white">
+    Suggested for you
+  </p>
+  <%= link_to "View all", suggested_followers_path,
+      class: "text-xs text-blue-600 hover:underline dark:text-blue-400" %>
+</div>
+
+<!-- Suggested Users List -->
+<div class="space-y-2 mt-3 ml-3">
+  <% @suggested_users.each do |user| %>
+    <%= render partial: "users/suggested_user", locals: { user: user } %>
+  <% end %>
+</div>
+
+

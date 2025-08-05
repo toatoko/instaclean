@@ -1,0 +1,103 @@
+<div class="min-h-screen flex flex-col items-center flex-grow">
+  <div class="max-w-2xl w-full space-y-8">
+    <!-- Logo and Header Section -->
+    <div class="text-center ">
+      <h2 style="margin-top:1.5rem;text-align:center;font-size:1.875rem;font-weight:800;color:#ffffff;text-shadow:0 1px 2px rgba(0,0,0,0.25);">
+        Edit <%= resource_name.to_s.humanize %>
+      </h2>
+    </div>
+
+    <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put }) do |f| %>
+      <%= render "devise/shared/error_messages", resource: resource %>
+
+      
+        <div class="mt-8 space-y-6">
+          <div class="flex items-center gap-6 rounded-md shadow-sm -space-y-px">
+            <% if current_user.avatar.attached? %> 
+              <%= image_tag current_user.avatar.variant(resize_to_fill: [200, 200]), class: "rounded-full", style: "
+                border: 5px solid rgba(192, 200, 35, 0.8);
+                box-shadow: var(--shadow-medium);
+                object-fit: cover;
+                margin-bottom: 1.5rem;
+                transition: var(--transition);
+                background: var(--bg-white);
+              " %>
+            <% end %>
+
+            <div class="w-full">
+              <%= f.label :avatar, class:"sr-only" %>
+              <%= f.file_field :avatar, class:"input-focus appearance-none rounded-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm transition-all duration-300 bg-white/90 backdrop-blur-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100" %>
+            </div>
+          </div>
+
+          <div>
+            <%= f.label :first_name, class:"sr-only" %>
+            <%= f.text_field :first_name, autofocus: true, placeholder:"First Name",
+              class:"input-focus appearance-none rounded-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm transition-all duration-300 bg-white/90 backdrop-blur-sm" %>
+          </div>
+
+          <div>
+            <%= f.label :last_name, class:"sr-only" %>
+            <%= f.text_field :last_name, placeholder:"Last Name",
+              class:"input-focus appearance-none rounded-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm transition-all duration-300 bg-white/90 backdrop-blur-sm" %>
+          </div>
+
+          <div>
+            <%= f.label :username, class:"sr-only" %>
+            <%= f.text_field :username, placeholder:"Username",
+              class:"input-focus appearance-none rounded-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm transition-all duration-300 bg-white/90 backdrop-blur-sm" %>
+          </div>
+          <div>
+            <%= f.label :bio, class:"sr-only" %>
+            <%= f.text_field :bio, placeholder:"bio",
+              class:"input-focus appearance-none rounded-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm transition-all duration-300 bg-white/90 backdrop-blur-sm" %>
+          </div>
+
+          <div>
+            <%= f.label :email, class:"sr-only" %>
+            <%= f.email_field :email, autocomplete: "email", placeholder:"Email address",
+              class:"input-focus appearance-none rounded-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm transition-all duration-300 bg-white/90 backdrop-blur-sm" %>
+          </div>
+
+          <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
+            <div class="text-center text-white/80 text-sm py-2">
+              Currently waiting confirmation for: <%= resource.unconfirmed_email %>
+            </div>
+          <% end %>
+
+          <div>
+            <%= f.label :password, class:"sr-only" %>
+            <%= f.password_field :password, autocomplete: "new-password", placeholder:"Password (leave blank if you don't want to change it, 6 characters minimum)",
+              class:"input-focus appearance-none rounded-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm transition-all duration-300 bg-white/90 backdrop-blur-sm" %>
+          </div>
+
+          <div>
+            <%= f.label :password_confirmation, class:"sr-only" %>
+            <%= f.password_field :password_confirmation, autocomplete: "new-password", placeholder:"Password confirmation",
+              class:"input-focus appearance-none rounded-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm transition-all duration-300 bg-white/90 backdrop-blur-sm" %>
+          </div>
+
+          <div>
+            <%= f.label :current_password, class:"sr-only" %>
+            <%= f.password_field :current_password, autocomplete: "current-password", placeholder:"Current password (we need your current password to confirm your changes)",
+              class:"input-focus appearance-none rounded-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm transition-all duration-300 bg-white/90 backdrop-blur-sm" %>
+          </div>
+
+          <div class="actions">
+            <%= f.submit "Update", class: "w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded transition-colors" %>
+          </div>
+        </div>
+      
+    <% end %>
+
+    <div class="text-center mt-8">
+      <h3 class="bg-red-500 text-lg font-semibold text-white mb-4 block w-full px-4 py-3 rounded">Cancel my account</h3>
+      <div class="mb-4">
+        <%= button_to "Delete my account", registration_path(resource_name), method: :delete, data: { confirm: "Are you sure?", turbo_confirm: "Are you sure?" }, style: "display:inline-flex;justify-content:center;padding:0.5rem 1rem;border:none;border-radius:0.75rem;font-size:0.875rem;font-weight:600;color:#ffffff;background-image:linear-gradient(to right,#ef4444,#dc2626);transition:all 0.3s ease;" %>
+      </div>
+      <div>
+        <%= link_to "Back", request.referrer || root_path, class:"text-yellow-500 block w-full px-4 py-3 " %>
+      </div>
+    </div>
+  </div>
+</div>

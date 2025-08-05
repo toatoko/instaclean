@@ -1,0 +1,49 @@
+<div class="min-h-screen flex items-center justify-center p-4">
+  <div class="w-full max-w-sm text-white">
+     <!-- Logo and Header Section -->
+      <div class="text-center floating-animation mb-5">
+        <img
+            class="mx-auto h-25 w-auto drop-shadow-2xl"
+            src="https://www.evmux.com/blog/wp-content/uploads/2023/12/instagram-copy-e1702584672389.png"
+            alt="Instagram"/>
+      </div>
+    <!-- Devise Login Form -->
+    <%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
+      <!-- Username/Email Input -->
+      <div class="mb-4">
+        <%= f.text_field :login,
+          autofocus: true,
+          placeholder: "Username, or email",
+          maxlength: 75,
+          autocorrect: "off",
+          autocapitalize: "off",
+          class:"input-focus appearance-none rounded-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm transition-all duration-300 bg-white/90 backdrop-blur-sm" %>
+      </div>
+
+      <!-- Password Input -->
+      <div class="mb-6">
+        <%= f.password_field :password,
+          autocomplete: "current-password",
+          placeholder: "Password",
+          class:"input-focus appearance-none rounded-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm transition-all duration-300 bg-white/90 backdrop-blur-sm" %>
+      </div>
+
+      <!-- Log In Button -->
+      <div class="mb-6">
+        <%= f.submit "Log in", class: "w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded transition-colors" %>
+      </div>
+    <% end %>
+    <!-- Forgot Password -->
+    <div class="text-center mb-8">
+      <%= link_to "Forgot password?", new_password_path(resource_name),
+        class: "text-blue-600 hover:text-gray-300 text-sm transition-colors" %>
+    </div>
+
+    <!-- Sign Up -->
+    <div class="text-center">
+      <span class="text-gray-400 text-sm">Don't have an account? </span>
+      <%= link_to "Sign up", new_user_registration_path,
+        class: "text-blue-600 hover:text-blue-700 text-sm transition-colors" %>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,35 @@
+<div class="min-h-screen flex items-center justify-center p-4">
+  <div class="w-full max-w-sm text-white">
+     <!-- Logo and Header Section -->
+      <div class="text-center floating-animation mb-5">
+        <img
+            class="mx-auto h-25 w-auto drop-shadow-2xl"
+            src="https://www.evmux.com/blog/wp-content/uploads/2023/12/instagram-copy-e1702584672389.png"
+            alt="Instagram"/>
+      </div>
+
+    <!-- Forgot password form -->
+    <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post }) do |f| %>
+      <%= render "devise/shared/error_messages", resource: resource %>
+      <div class="mb-4">
+          <%= f.text_field :login,
+            autofocus: true,
+            placeholder: "Enter your email",
+            maxlength: 75,
+            autocorrect: "off",
+            autocapitalize: "off",
+            class: "w-full px-4 py-3 border border-gray-300 rounded text-gray-300 placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500" %>
+        </div>
+        <div class="mb-6">
+          <%= f.submit "Send reset instructions",  class: "w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded transition-colors" %>
+        </div>
+    <% end %>
+    
+    <div class="text-center text-sm text-gray-400 space-x-2">
+      <%= link_to "Log in", new_user_session_path, class: "text-blue-600 hover:text-blue-700 text-sm transition-colors" %>
+      <span>|</span>
+      <%= link_to "Sign up", new_user_registration_path, class: "text-blue-600 hover:text-blue-700 text-sm transition-colors" %>
+    </div>
+  </div>
+</div>
+

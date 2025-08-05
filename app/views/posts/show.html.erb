@@ -1,0 +1,120 @@
+<div class="max-w-2xl mx-auto px-4 py-8">
+  <article class="bg-white rounded-lg shadow-md overflow-hidden">
+    <!-- Post Header -->
+    <div class="p-6">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center space-x-3">
+          <% if @post.user.avatar.attached? %>
+            <%= image_tag @post.user.avatar, class: "w-12 h-12 rounded-full object-cover" %>
+          <% else %>
+            <div class="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center">
+              <span class="text-gray-600 font-medium"><%= @post.user.username %></span>
+            </div>
+          <% end %>
+          <div>
+            <h3 class="font-semibold text-gray-900"><%= @post.user.first_name %></h3>
+            <p class="text-sm text-gray-500"><%= time_ago_in_words(@post.created_at) %> ago</p>
+          </div>
+        </div>
+        
+        <% if current_user == @post.user %>
+          <div class="flex space-x-2">
+            <%= link_to 'Edit', edit_post_path(@post), 
+                class: 'text-blue-600 hover:text-blue-800 text-sm font-medium' %>
+            <%= link_to 'Delete', @post, method: :delete, 
+                confirm: 'Are you sure?', 
+                class: 'text-red-600 hover:text-red-800 text-sm font-medium' %>
+          </div>
+        <% end %>
+      </div>
+      
+      <% if @post.description.present? %>
+        <p class="text-gray-800 mb-4"><%= simple_format(@post.description) %></p>
+      <% end %>
+    </div>
+
+    <!-- Post Image -->
+    <% if @post.image.attached? %>
+      <div class="w-full">
+        <%= image_tag @post.image, class: "w-full h-auto object-cover" %>
+      </div>
+    <% end %>
+
+    <!-- Post Actions -->
+    <div class="p-6">
+      <div class="flex items-center space-x-4 mb-4">
+        <div id="like_button_<%= @post.id %>">
+          <%= render 'posts/like_button', post: @post %>
+        </div>
+        
+        <span class="text-gray-600">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+          </svg>
+        </span>
+
+        <div class="relative ml-auto">
+          <button 
+            onclick="copyPostLink(this)" 
+            data-copy-link="<%= post_url(@post) %>"
+            class="focus:outline-none hover:text-green-500 transition-colors duration-150">
+            <!-- Share icon -->
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="18" cy="5" r="3"/>
+              <circle cx="6" cy="12" r="3"/>
+              <circle cx="18" cy="19" r="3"/>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+            </svg>
+          </button>
+
+          <!-- Tooltip -->
+          <div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 transition-opacity duration-300 pointer-events-none z-10"
+              id="tooltip-for-<%= @post.id %>">
+            Link copied!
+          </div>
+        </div>
+
+
+      </div>
+
+      <!-- Likes Count -->
+      <div id="likes_count_<%= @post.id %>">
+        <%= render 'posts/likes_count', post: @post %>
+      </div>
+    </div>
+  </article>
+
+  <!-- Comments Section -->
+  <div class="mt-8">
+    <h3 class="text-xl font-bold text-black dark:text-white mb-4">
+      Comments (<span id="comments_count_<%= @post.id %>"><%= @post.comments_count %></span>)
+    </h3>
+    
+    <!-- Comment Form -->
+    <% if user_signed_in? %>
+      <div id="comment_form_<%= @post.id %>" class="mb-6">
+        <%= render 'comments/form', post: @post, comment: @comment %>
+      </div>
+    <% else %>
+      <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+        <p class="text-gray-600">
+          <%= link_to 'Sign in', new_user_session_path, class: 'text-blue-600 hover:text-blue-800 font-medium' %> 
+          to leave a comment.
+        </p>
+      </div>
+    <% end %>
+
+    <!-- Comments List -->
+    <div id="comments_list_<%= @post.id %>" class="space-y-4">
+      <% @comments.each do |comment| %>
+        <%= render 'comments/comment', comment: comment %>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <div class="mt-8">
+    <%= link_to '← Back to dashboard', root_path, 
+        class: 'inline-flex items-center text-blue-600 hover:text-blue-800 font-medium' %>
+  </div>

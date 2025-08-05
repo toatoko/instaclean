@@ -1,0 +1,174 @@
+<% content_for :title, "Admin Dashboard" %>
+
+<div class="px-3 py-4 sm:px-4 lg:px-6 xl:px-8">
+  <div class="border-4 border-dashed border-gray-200 dark:border-gray-700 rounded-lg p-4 sm:p-6 lg:p-8">
+    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-6 sm:mb-8">Admin Dashboard</h1>
+    
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+      <!-- Users Card -->
+      <div class="overflow-hidden shadow-lg rounded-lg border border-gray-200 dark:border-gray-700">
+        <div class="p-4 sm:p-6">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
+            </div>
+            <div class="ml-4 min-w-0 flex-1">
+              <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Users</p>
+              <p class="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white"><%= @users_count || 0 %></p>
+            </div>
+          </div>
+        </div>
+        <div class="bg-gray-50 px-4 py-3 sm:px-6 mt-13">
+          <%= link_to "View Users", admin_users_path, class: "text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-500 transition-colors" %>
+        </div>
+      </div>
+
+      <!-- Reports Card -->
+      <div class="overflow-hidden shadow-lg rounded-lg border border-gray-200 dark:border-gray-700">
+        <div class="p-4 sm:p-6">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <div class="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
+                <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                </svg>
+              </div>
+            </div>
+            <div class="ml-4 min-w-0 flex-1">
+              <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Reports</p>
+              <p class="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white"><%= @reports_count || 0 %></p>
+              <% if @pending_reports_count && @pending_reports_count > 0 %>
+                <p class="text-xs text-red-600 dark:text-red-400"><%= @pending_reports_count %> pending</p>
+              <% end %>
+            </div>
+          </div>
+        </div> 
+        <div class="bg-gray-50 px-4 py-3 sm:px-6 mt-13">
+          <%= link_to "View Reports", admin_reports_path, class: "text-sm font-medium text-red-600 dark:text-red-400 hover:text-red-500 transition-colors" %>
+        </div>
+      </div>
+
+      <!-- Quick Search Card -->
+      <div class="overflow-hidden shadow-lg rounded-lg border border-gray-200 dark:border-gray-700 sm:col-span-2 xl:col-span-1">
+        <div class="p-4 sm:p-6">
+          <div class="flex items-center mb-4">
+            <div class="flex-shrink-0">
+              <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
+                <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+            </div>
+            <div class="ml-4 min-w-0 flex-1">
+              <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Quick Search</p>
+              <p class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">Find Anything</p>
+            </div>
+          </div>
+          
+          <!-- Quick Search Form -->
+          <%= form_with url: admin_search_index_path, method: :get, local: true, class: "flex" do |f| %>
+            <%= f.text_field :q, placeholder: "Search...", 
+                class: "flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-l-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent" %>
+            <%= f.submit "Go", class: "px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-r-lg transition-colors duration-200" %>
+          <% end %>
+        </div>
+        <div class="bg-gray-50 mt-0.5 px-4 py-3 sm:px-6">
+          <%= link_to "Advanced Search", admin_search_index_path, class: "text-sm font-medium text-purple-600 dark:text-purple-400 hover:text-purple-500 transition-colors" %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+      <!-- Recent Users -->
+      <div class="shadow-lg rounded-lg border border-gray-200 dark:border-gray-700">
+        <div class="px-4 py-4 sm:px-6 border-b border-gray-200 dark:border-gray-700">
+          <h3 class="text-base sm:text-lg font-medium text-gray-900 dark:text-white">Recent Users</h3>
+        </div>
+        <div class="divide-y divide-gray-200 dark:divide-gray-700 max-h-96 overflow-y-auto">
+          <% if @recent_users&.any? %>
+            <% @recent_users.each do |user| %>
+              <div class="px-4 py-4 sm:px-6">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center min-w-0 flex-1">
+                    <% if user.avatar.attached? %>
+                      <%= image_tag user.avatar, class: "w-8 h-8 rounded-full object-cover flex-shrink-0" %>
+                    <% else %>
+                      <div class="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center flex-shrink-0">
+                        <span class="text-xs text-gray-600 dark:text-gray-300"><%= user.username.first.upcase %></span>
+                      </div>
+                    <% end %>
+                    <div class="ml-3 min-w-0 flex-1">
+                      <p class="text-sm font-medium text-gray-900 dark:text-white truncate"><%= user.username %></p>
+                      <p class="text-xs text-gray-500 dark:text-gray-400"><%= time_ago_in_words(user.created_at) %> ago</p>
+                    </div>
+                  </div>
+                  <div class="ml-3 flex-shrink-0">
+                    <% if user.admin? %>
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-500">Admin</span>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          <% else %>
+            <div class="px-4 py-8 sm:px-6 text-center">
+              <p class="text-gray-500 dark:text-gray-400">No users found</p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Recent Reports -->
+      <div class="shadow-lg rounded-lg border border-gray-200 dark:border-gray-700">
+        <div class="px-4 py-4 sm:px-6 border-b border-gray-200 dark:border-gray-700">
+          <h3 class="text-base sm:text-lg font-medium text-gray-900 dark:text-white">Recent Reports</h3>
+        </div>
+        <div class="divide-y divide-gray-200 dark:divide-gray-700 max-h-96 overflow-y-auto">
+          <% if @recent_reports&.any? %>
+            <% @recent_reports.each do |report| %>
+              <div class="px-4 py-4 sm:px-6">
+                <div class="flex items-start justify-between">
+                  <div class="flex items-start min-w-0 flex-1">
+                    <div class="w-8 h-8 rounded-full bg-red-100 dark:bg-red-900/50 flex items-center justify-center flex-shrink-0">
+                      <svg class="w-4 h-4 text-red-600 dark:text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                      </svg>
+                    </div>
+                    <div class="ml-3 min-w-0 flex-1">
+                      <p class="text-sm font-medium text-gray-900 dark:text-white"><%= report.reportable_type %> reported</p>
+                     <div class="ml-3">
+                        <p class="text-xs text-gray-500 dark:text-gray-400">By <%= report.reporter.username %> • <%= time_ago_in_words(report.created_at) %> ago</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="ml-3 flex-shrink-0">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                      <% if report.status == 'pending' %>
+                        bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-700
+                      <% elsif report.status == 'resolved' %>
+                        bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-700
+                      <% else %>
+                        bg-gray-100 text-gray-800 dark:bg-gray-900/50 dark:text-gray-700
+                      <% end %>">
+                      <%= report.status.titleize %>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          <% else %>
+            <div class="px-4 py-8 sm:px-6 text-center">
+              <p class="text-gray-500 dark:text-gray-400">No reports found</p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

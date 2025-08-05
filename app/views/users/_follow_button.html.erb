@@ -1,0 +1,16 @@
+<!-- app/views/users/_follow_button.html.erb -->
+<% if current_user && current_user != @user %>
+  <% if @is_following %>
+    <%= link_to user_unfollows_path(@user.username), 'data-turbo-method': :delete,
+        data: { turbo: true },
+        class: "px-4 py-1.5 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white text-sm font-medium rounded transition-colors" do %>
+      Unfollow
+    <% end %>
+  <% else %>
+    <%= link_to user_follows_path(@user.username), 'data-turbo-method': :post,
+        data: { turbo: true },
+        class: "px-4 py-1.5 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white text-sm font-medium rounded transition-colors" do %>
+      Follow
+    <% end %>
+  <% end %>
+<% end %>

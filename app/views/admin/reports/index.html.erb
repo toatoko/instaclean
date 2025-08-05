@@ -1,0 +1,157 @@
+<% content_for :title, "Admin Reports" %>
+<div class="px-4 py-6 sm:px-6 lg:px-8">
+  <div class="mb-6">
+    <%= link_to admin_dashboard_path, class: "inline-flex items-center text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200" do %>
+      <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M7.707 14.707a1 1 0 01-1.414 0L2.586 11l3.707-3.707a1 1 0 011.414 1.414L5.414 11l2.293 2.293a1 1 0 010 1.414z" clip-rule="evenodd"></path>
+      </svg>
+      Back to Dashboard
+    <% end %>
+  </div>
+  
+  <div class="border-4 border-dashed border-gray-200 dark:border-gray-700 rounded-lg p-4 sm:p-6 lg:p-8">
+    <!-- Header Section -->
+    <div class="mb-6 sm:mb-8">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+          <% if @reportable %>
+            <span class="block sm:inline">Reports for</span>
+            <span class="block sm:inline"><%= @reportable.class.name %> #<%= @reportable.id %></span>
+          <% else %>
+            All Reports
+          <% end %>
+        </h1>
+
+        <% unless @reportable %>
+          <div class="flex flex-wrap gap-2 sm:space-x-2 sm:gap-0">
+            <%= link_to "All", admin_reports_path,
+                class: "px-3 py-2 sm:px-4 rounded-md text-sm font-medium #{params[:status].blank? ? 'bg-blue-600 text-white' : 'bg-gray-200 text-black'}" %>
+            <%= link_to "Pending", admin_reports_path(status: 'pending'),
+                class: "px-3 py-2 sm:px-4 rounded-md text-sm font-medium #{params[:status] == 'pending' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-black'}" %>
+            <%= link_to "Resolved", admin_reports_path(status: 'resolved'),
+                class: "px-3 py-2 sm:px-4 rounded-md text-sm font-medium #{params[:status] == 'resolved' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-black'}" %>
+            <%= link_to "Dismissed", admin_reports_path(status: 'dismissed'),
+                class: "px-3 py-2 sm:px-4 rounded-md text-sm font-medium #{params[:status] == 'dismissed' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-black'}" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <% if @reports.any? %>
+      <div class="space-y-4 sm:space-y-6">
+        <% @reports.each do |report| %>
+          <div class="shadow-lg rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div class="p-4 sm:p-6">
+              <!-- Report Header -->
+              <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-4 gap-4">
+                <div class="flex-1">
+                  <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                    <%= link_to "Report ##{report.id}", admin_report_path(report), class: "hover:underline" %>
+                    <span class="block sm:inline sm:ml-3 mt-2 sm:mt-0 inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium
+                      <% if report.status == 'pending' %>
+                        bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-700
+                      <% elsif report.status == 'resolved' %>
+                        bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-700
+                      <% elsif report.status == 'dismissed' %>
+                        bg-gray-100 text-gray-800 dark:bg-white/50 dark:text-gray-700
+                      <% end %>">
+                      <%= report.status.titleize %>
+                    </span>
+                  </h3>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">
+                    Reported by <span class="font-medium"><%= report.reporter.username || report.reporter.email %></span>
+                    <br class="sm:hidden">
+                    <span class="hidden sm:inline">on</span>
+                    <span class="sm:hidden">on</span> <%= report.created_at.strftime("%B %d, %Y at %I:%M %p") %>
+                  </p>
+                </div>
+                
+                <!-- Reported Content Info -->
+                <div class="sm:text-right">
+                  <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400">Reported Content:</h4>
+                  <p class="text-base text-gray-900 dark:text-white">
+                    <%= report.reportable_type %> #<%= report.reportable_id %>
+                  </p>
+                  <% if report.reportable_type == 'Post' && report.reportable %>
+                    <div class="flex items-center gap-2 mt-2 sm:justify-end">
+                      <% if report.reportable.image.attached? %>
+                        <%= image_tag report.reportable.image.variant(resize_to_limit: [50, 50]),
+                                      alt: "Post Image",
+                                      class: "w-10 h-10 sm:w-12 sm:h-12 object-cover rounded-md border border-gray-200 dark:border-gray-600 flex-shrink-0" %>
+                      <% end %>
+                      <span class="text-sm text-gray-500 dark:text-gray-400">- "<%= truncate(report.reportable&.description, length: 30) %>"</span>
+                    </div>
+                  <% elsif report.reportable_type == 'Comment' && report.reportable %>
+                    <div class="text-sm mt-1 text-gray-500 dark:text-gray-400">- "<%= truncate(report.reportable&.description, length: 40) %>"</div>
+                  <% elsif report.reportable_type == 'User' && report.reportable %>
+                    <div class="text-sm mt-1 text-gray-500 dark:text-gray-400">- <%= report.reportable.username || report.reportable.email %></div>
+                  <% end %>
+                </div>
+              </div>
+
+              <!-- Reason -->
+              <div class="mb-4">
+                <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Reason:</h4>
+                <div class="text-gray-700 dark:text-gray-300 text-sm sm:text-base">
+                  <%= simple_format(report.reason) %>
+                </div>
+              </div>
+
+              <!-- Resolution Info -->
+              <% if report.resolved? || report.dismissed? %>
+                <div class="mb-4 p-3 bg-green-100 rounded-md">
+                  <p class="text-sm text-green-600 ">
+                    <span class="font-medium"><%= report.status.titleize %></span> by
+                    <span class="font-medium"><%= report.resolved_by&.username || report.resolved_by&.email %></span>
+                    <br class="sm:hidden">
+                    <span class="hidden sm:inline">on</span>
+                    <span class="sm:hidden">on</span> <%= report.resolved_at&.strftime("%B %d, %Y at %I:%M %p") %>
+                  </p>
+                </div>
+              <% end %>
+
+              <!-- Actions -->
+              <div class="flex flex-col sm:flex-row sm:justify-end gap-2 sm:gap-3 mt-4">
+                <%= link_to "View Details", admin_report_path(report), 
+                    class: "inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+
+                <% if report.status == 'pending' %>
+                  <%= button_to "Quick Resolve", resolve_admin_report_path(report),
+                      method: :patch,
+                      class: "inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500",
+                      data: { turbo_confirm: "Are you sure you want to resolve this report?" } %>
+
+                  <%= button_to "Dismiss", dismiss_admin_report_path(report),
+                      method: :patch,
+                      class: "inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-black dark:border-gray-600 dark:hover:bg-gray-600",
+                      data: { turbo_confirm: "Are you sure you want to dismiss this report?" } %>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Bulk Actions -->
+      <% if @reportable && @reports.where(status: 'pending').any? %>
+        <div class="mt-6 sm:mt-8 text-center sm:text-right">
+          <%= button_to "Resolve All Pending Reports",
+              resolve_all_reports_path_for(@reportable),
+              method: :patch,
+              class: "w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500",
+              data: { turbo_confirm: "Are you sure you want to resolve all pending reports for this #{@reportable.class.name.downcase}?" } %>
+        </div>
+      <% end %>
+
+    <% else %>
+      <div class="px-4 py-8 sm:px-6 text-center shadow-lg rounded-lg border border-gray-200 dark:border-gray-700">
+        <div class="mx-auto w-16 h-16 sm:w-20 sm:h-20 mb-4 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
+          <svg class="w-8 h-8 sm:w-10 sm:h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+        </div>
+        <p class="text-gray-500 dark:text-gray-400 text-lg">No reports found.</p>
+      </div>
+    <% end %>
+  </div>
+</div>

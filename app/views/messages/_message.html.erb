@@ -1,0 +1,18 @@
+<!-- app/views/messages/_message.html.erb -->
+<div id="message_<%= message.id %>" class="flex <%= 'justify-end' if message.sender == current_user %>">
+  <div class="max-w-xs lg:max-w-md px-4 py-2 rounded-lg <%= message.sender == current_user ? 'bg-blue-600 text-white' : 'bg-white text-gray-800' %> shadow-sm">
+    <p class="text-sm break-words"><%= simple_format(message.content) %></p>
+    
+    <div class="flex items-center justify-between mt-1">
+      <span class="text-xs <%= message.sender == current_user ? 'text-blue-200' : 'text-gray-500' %>">
+        <%= message.created_at.strftime("%I:%M %p") %>
+      </span>
+      
+      <% if message.sender == current_user %>
+        <span class="text-xs <%= message.sender == current_user ? 'text-blue-200' : 'text-gray-500' %> ml-2">
+          <%= message.read? ? "Read" : "Sent" %>
+        </span>
+      <% end %>
+    </div>
+  </div>
+</div>
