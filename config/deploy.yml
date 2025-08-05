@@ -89,7 +89,7 @@ accessories:
   insta_clean_production:
     image: postgres:17.5
     host: 13.60.9.221
-    port: 5432
+    port: 127.0.0.1:5432:5432
     env:
       POSTGRES_USER: insta_clean
       POSTGRES_PASSWORD: KAMAL_DB_PASSWORD
