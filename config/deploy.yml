@@ -91,6 +91,8 @@ accessories:
     host: 13.60.9.221
     port: 5432:5432
     env:
+      secret:
+        - KAMAL_DB_PASSWORD
       clear:
         POSTGRES_USER: insta_clean
         POSTGRES_DB: insta_clean_production
