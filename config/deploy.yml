@@ -7,10 +7,10 @@ image: toatoko/insta_clean
 # Deploy to these servers.
 servers:
   web:
-    - 13.60.9.221
+    - 16.170.155.182
   # job:
   #   hosts:
-  #     - 13.60.9.221
+  #     - 16.170.155.182
   #   cmd: bin/jobs
 
 # Enable SSL auto certification via Let's Encrypt and allow for multiple apps on a single web server.
@@ -88,7 +88,7 @@ ssh:
 accessories:
   insta_clean_production:
     image: postgres:17.5
-    host: 13.60.9.221
+    host: 16.170.155.182
     port: 5432:5432
     env:
       clear:
