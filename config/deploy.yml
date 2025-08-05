@@ -94,7 +94,6 @@ accessories:
     env:
       POSTGRES_USER: insta_clean
       POSTGRES_DB: insta_clean_production
-    env:
       secret:
         - KAMAL_DB_PASSWORD
     volumes:
