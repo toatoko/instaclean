@@ -93,8 +93,10 @@ accessories:
     port: 5432:5432
     env:
       POSTGRES_USER: insta_clean
-      POSTGRES_PASSWORD: KAMAL_DB_PASSWORD
       POSTGRES_DB: insta_clean_production
+    env:
+      secret:
+        - KAMAL_DB_PASSWORD
     volumes:
       - /data/insta_clean/postgres:/var/lib/postgresql/data
     options:
