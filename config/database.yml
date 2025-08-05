@@ -82,5 +82,4 @@ production:
   database: insta_clean_production
   username: insta_clean
   password: <%= ENV["KAMAL_DB_PASSWORD"] %>
-  host: localhost
-  
+  host: insta_clean_production
