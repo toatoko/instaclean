@@ -81,5 +81,5 @@ production:
   <<: *default
   database: insta_clean_production
   username: insta_clean
-  password: <%= ENV["KAMAL_DB_PASSWORD"] %>
-  host: insta_clean_production
+  password: <%= ENV["POSTGRES_PASSWORD"] %>
+  host: db

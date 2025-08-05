@@ -19,7 +19,7 @@ servers:
 # Note: If using Cloudflare, set encryption mode in SSL/TLS setting to "Full" to enable CF-to-app encryption.
 proxy:
   ssl: true
-  host: blog.test.website
+  host: blog-test.website
 
 # Credentials for your image host.
 registry:
@@ -35,13 +35,13 @@ registry:
 env:
   secret:
     - RAILS_MASTER_KEY
-    - KAMAL_DB_PASSWORD
-  # clear:
-  #   # Set number of cores available to the application on each server (default: 1).
-  #   WEB_CONCURRENCY: 2
+    - POSTGRES_PASSWORD
+  clear:
+    #   # Set number of cores available to the application on each server (default: 1).
+    #   WEB_CONCURRENCY: 2
 
-  #   # Match this to any external database server to configure Active Record correctly
-  #   DB_HOST: 192.168.0.2
+    #   # Match this to any external database server to configure Active Record correctly
+    DB_HOST: insta_clean-db
 
   #   # Log everything from Rails
   #   RAILS_LOG_LEVEL: debug
@@ -78,7 +78,6 @@ builder:
   #   - GITHUB_TOKEN
   #   - RAILS_MASTER_KEY
 
-# Use a different ssh user than root
 ssh:
   user: ubuntu
   keys:
@@ -86,20 +85,24 @@ ssh:
 
 # Use accessory services (secrets come from .kamal/secrets).
 accessories:
-  insta_clean_production:
+  db:
     image: postgres:17.5
     host: 16.170.155.182
-    port: 5432:5432
+    # Change to 3306 to expose port to the world instead of just local network.
+    port: "127.0.0.1:5432:5432"
     env:
       clear:
+        MYSQL_ROOT_HOST: "%"
         POSTGRES_USER: insta_clean
         POSTGRES_DB: insta_clean_production
-        POSTGRES_PASSWORD: "0707"
-    volumes:
-      - /data/insta_clean/postgres:/var/lib/postgresql/data
-    options:
-      health-cmd: "pg_isready -U insta_clean -d insta_clean_production"
-#   redis:
+      secret:
+        - POSTGRES_PASSWORD
+    files:
+      # - config/mysql/production.cnf:/etc/mysql/my.cnf
+      - db/production.sql:/docker-entrypoint-initdb.d/setup.sql
+    directories:
+      - data:/var/lib/mysql
+  # redis:
 #     image: redis:7.0
 #     host: 192.168.0.2
 #     port: 6379
