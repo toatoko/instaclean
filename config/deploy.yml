@@ -41,7 +41,7 @@ env:
     #   WEB_CONCURRENCY: 2
 
     #   # Match this to any external database server to configure Active Record correctly
-    DB_HOST: insta_clean-insta_clean_production
+    DB_HOST: 172.18.0.3
 
   #   # Log everything from Rails
   #   RAILS_LOG_LEVEL: debug
