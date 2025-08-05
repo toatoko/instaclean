@@ -41,7 +41,7 @@ env:
     #   WEB_CONCURRENCY: 2
 
     #   # Match this to any external database server to configure Active Record correctly
-    DB_HOST: insta_clean-db
+    DB_HOST: insta_clean-insta_clean_production
 
   #   # Log everything from Rails
   #   RAILS_LOG_LEVEL: debug
@@ -86,6 +86,7 @@ ssh:
 # Use accessory services (secrets come from .kamal/secrets).
 accessories:
   db:
+    # service: insta_clean-db
     image: postgres:17.5
     host: 16.170.155.182
     # Change to 3306 to expose port to the world instead of just local network.
