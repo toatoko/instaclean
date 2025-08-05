@@ -81,6 +81,5 @@ production:
   <<: *default
   database: insta_clean_production
   username: insta_clean
-  password: "0707" # Temporarily use the password directly
   host: 13.60.9.221
   port: 5432
