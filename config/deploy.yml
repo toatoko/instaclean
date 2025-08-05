@@ -8,15 +8,26 @@ image: toatoko/insta_clean
 servers:
   web:
     - 16.170.155.182
+  # job:
+  #   hosts:
+  #     - 16.170.155.182
+  #   cmd: bin/jobs
 
 # Enable SSL auto certification via Let's Encrypt and allow for multiple apps on a single web server.
+# Remove this section when using multiple web servers and ensure you terminate SSL at your load balancer.
+#
+# Note: If using Cloudflare, set encryption mode in SSL/TLS setting to "Full" to enable CF-to-app encryption.
 proxy:
   ssl: true
   host: blog-test.website
 
 # Credentials for your image host.
 registry:
+  # Specify the registry server, if you're not using Docker Hub
+  # server: registry.digitalocean.com / ghcr.io / ...
   username: toatoko
+
+  # Always use an access token rather than real password when possible.
   password:
     - KAMAL_REGISTRY_PASSWORD
 
@@ -26,28 +37,46 @@ env:
     - RAILS_MASTER_KEY
     - POSTGRES_PASSWORD
   clear:
-    # Make sure the DB_HOST matches the accessory service name
-    DB_HOST: insta_clean-db
-    # Add database configuration
-    DATABASE_URL: postgres://insta_clean:0707@insta_clean-db:5432/insta_clean_production
+    #   # Set number of cores available to the application on each server (default: 1).
+    #   WEB_CONCURRENCY: 2
 
-# Aliases
+    #   # Match this to any external database server to configure Active Record correctly
+    DB_HOST: insta_clean-db
+
+  #   # Log everything from Rails
+  #   RAILS_LOG_LEVEL: debug
+
+# Aliases are triggered with "bin/kamal <alias>". You can overwrite arguments on invocation:
+# "bin/kamal logs -r job" will tail logs from the first server in the job section.
 aliases:
   console: app exec --interactive --reuse "bin/rails console"
   shell: app exec --interactive --reuse "bash"
   logs: app logs -f
   dbc: app exec --interactive --reuse "bin/rails dbconsole"
 
-# Use a persistent storage volume
+# Use a persistent storage volume for sqlite database files and local Active Storage files.
+# Recommended to change this to a mounted volume path that is backed up off server.
 volumes:
   - "insta_clean_storage:/rails/storage"
 
-# Bridge fingerprinted assets
+# Bridge fingerprinted assets, like JS and CSS, between versions to avoid
+# hitting 404 on in-flight requests. Combines all files from new and old
+# version inside the asset_path.
 asset_path: /rails/public/assets
 
 # Configure the image builder.
 builder:
   arch: amd64
+
+  # # Build image via remote server (useful for faster amd64 builds on arm64 computers)
+  # remote: ssh://docker@docker-builder-server
+  #
+  # # Pass arguments and secrets to the Docker build process
+  # args:
+  #   RUBY_VERSION: ruby-3.4.4
+  # secrets:
+  #   - GITHUB_TOKEN
+  #   - RAILS_MASTER_KEY
 
 ssh:
   user: ubuntu
@@ -59,16 +88,23 @@ accessories:
   db:
     image: postgres:17.5
     host: 16.170.155.182
+    # Change to 3306 to expose port to the world instead of just local network.
     port: "127.0.0.1:5432:5432"
     env:
       clear:
+        MYSQL_ROOT_HOST: "%"
         POSTGRES_USER: insta_clean
         POSTGRES_DB: insta_clean_production
-        # Ensure PostgreSQL allows connections
-        POSTGRES_HOST_AUTH_METHOD: md5
       secret:
         - POSTGRES_PASSWORD
+    files:
+      # - config/mysql/production.cnf:/etc/mysql/my.cnf
+      - db/production.sql:/docker-entrypoint-initdb.d/setup.sql
     directories:
-      - data:/var/lib/postgresql/data
-    # Add health check
-    cmd: postgres -c 'shared_preload_libraries=''''' -c 'log_statement=all'
+      - data:/var/lib/mysql
+  # redis:
+#     image: redis:7.0
+#     host: 192.168.0.2
+#     port: 6379
+#     directories:
+#       - data:/data

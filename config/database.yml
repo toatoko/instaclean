@@ -79,10 +79,8 @@ test:
 #
 production:
   <<: *default
-  # Use DATABASE_URL if available, otherwise use individual config
-  url: <%= ENV['DATABASE_URL'] %>
   database: insta_clean_production
   username: insta_clean
   password: <%= ENV['POSTGRES_PASSWORD'] || '0707' %>
-  host: <%= ENV['DB_HOST'] || 'insta_clean-db' %>
+  host: insta_clean-db
   port: 5432
