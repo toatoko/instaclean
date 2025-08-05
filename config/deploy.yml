@@ -86,8 +86,8 @@ ssh:
 # Use accessory services (secrets come from .kamal/secrets).
 
 accessories:
-  db:
-    image: postgres:14
+  insta_clean_production:
+    image: postgres:17.5
     host: 13.60.9.221
     port: 5432
     env:
