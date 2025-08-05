@@ -82,5 +82,5 @@ production:
   database: insta_clean_production
   username: insta_clean
   password: <%= ENV["KAMAL_DB_PASSWORD"] %>
-  host: 13.60.9.221
-  port: 5432
+  host: localhost
+  
