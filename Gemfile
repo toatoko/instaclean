@@ -70,3 +70,4 @@ gem "tailwindcss-rails", "~> 4.3"
 gem "kaminari"
 gem "noticed", "~> 1.6"
 gem "devise"
+gem "aws-sdk-s3", require: false
