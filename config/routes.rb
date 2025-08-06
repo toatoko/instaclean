@@ -1,6 +1,61 @@
 Rails.application.routes.draw do
   # Health check
   get "up" => "rails/health#show", as: :rails_health_check
+
+  # API Routes
+  namespace :api do
+    namespace :v1 do
+      # Authentication
+      post "auth/login", to: "authentication#login"
+      post "auth/register", to: "authentication#register"
+      delete "auth/logout", to: "authentication#logout"
+      get "auth/me", to: "authentication#me"
+
+      # Users
+      resources :users, param: :username, only: [ :index, :show, :update ] do
+        member do
+          post :follow
+          delete :unfollow
+        end
+        collection do
+          get :suggested
+        end
+      end
+
+      # Posts
+      resources :posts, only: [ :index, :show, :create, :update, :destroy ] do
+        resources :comments, only: [ :index, :create, :destroy ]
+        member do
+          post :toggle_like
+        end
+      end
+
+      # Messages/Conversations
+      resources :conversations, only: [ :index, :show ] do
+        resources :messages, only: [ :create ]
+      end
+
+      # Notifications
+      resources :notifications, only: [ :index ] do
+        member do
+          patch :mark_as_read
+        end
+        collection do
+          patch :mark_all_as_read
+        end
+      end
+
+      # Search
+      get "search", to: "search#index"
+
+      # Blocking
+      resources :blocks, only: [ :index, :create, :destroy ]
+
+      # Reports (if needed for mobile)
+      resources :reports, only: [ :create ]
+    end
+  end
+
   # Public report creation
   resources :reports, only: [ :create ]
 

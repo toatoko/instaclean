@@ -71,3 +71,4 @@ gem "kaminari"
 gem "noticed", "~> 1.6"
 gem "devise"
 gem "aws-sdk-s3", require: false
+gem "jwt"

@@ -10,21 +10,6 @@ class NotificationsController < ApplicationController
     @total_count = current_user.notifications.count
     @unread_count = @unread_notifications.count
     @read_count = current_user.notifications.read.count
-
-    # DEBUG: Add this temporarily to see what's being stored
-    if Rails.env.development?
-      Rails.logger.debug "=== NOTIFICATION DEBUG ==="
-      @all_notifications.limit(3).each do |notification|
-        Rails.logger.debug "Notification ID: #{notification.id}"
-        Rails.logger.debug "Type: #{notification.type}"
-        Rails.logger.debug "Params keys: #{notification.params&.keys}"
-        Rails.logger.debug "Params: #{notification.params.inspect}"
-        Rails.logger.debug "Message: #{notification.message}"
-        Rails.logger.debug "User: #{notification.notification_user&.username || 'nil'}"
-        Rails.logger.debug "---"
-      end
-      Rails.logger.debug "=== END DEBUG ==="
-    end
   end
 
   def mark_as_read
