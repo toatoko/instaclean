@@ -41,7 +41,7 @@ env:
     #   WEB_CONCURRENCY: 2
 
     #   # Match this to any external database server to configure Active Record correctly
-    DB_HOST: 172.18.0.3
+    DB_HOST: insta_clean-db
 
   #   # Log everything from Rails
   #   RAILS_LOG_LEVEL: debug
@@ -88,7 +88,7 @@ accessories:
   db:
     image: postgres:17.5
     host: 16.170.155.182
-    port: "127.0.0.1:5432:5432"
+    # port: "127.0.0.1:5432:5432"
     env:
       clear:
         POSTGRES_USER: insta_clean
