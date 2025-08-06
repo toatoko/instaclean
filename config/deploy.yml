@@ -35,7 +35,7 @@ registry:
 env:
   secret:
     - RAILS_MASTER_KEY
-    # - POSTGRES_PASSWORD
+    - POSTGRES_PASSWORD
   clear:
     #   # Set number of cores available to the application on each server (default: 1).
     #   WEB_CONCURRENCY: 2
@@ -86,22 +86,19 @@ ssh:
 # Use accessory services (secrets come from .kamal/secrets).
 accessories:
   db:
-    # service: insta_clean-db
     image: postgres:17.5
     host: 16.170.155.182
-    # Change to 3306 to expose port to the world instead of just local network.
     port: "127.0.0.1:5432:5432"
     env:
       clear:
-        MYSQL_ROOT_HOST: "%"
         POSTGRES_USER: insta_clean
         POSTGRES_DB: insta_clean_production
-        POSTGRES_PASSWORD: 0707
+      secret:
+        - POSTGRES_PASSWORD
     files:
-      # - config/mysql/production.cnf:/etc/mysql/my.cnf
       - db/production.sql:/docker-entrypoint-initdb.d/setup.sql
     directories:
-      - data:/var/lib/mysql
+      - data:/var/lib/postgresql/data
   # redis:
 #     image: redis:7.0
 #     host: 192.168.0.2
