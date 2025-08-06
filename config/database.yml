@@ -81,6 +81,6 @@ production:
   <<: *default
   database: insta_clean_production
   username: insta_clean
-  password: <%= ENV['POSTGRES_PASSWORD'] || '0707' %>
+  password: <%= ENV['POSTGRES_PASSWORD'].to_s || '0707' %>
   host: <%= ENV['DB_HOST'] || 'localhost' %>
   port: 5432
