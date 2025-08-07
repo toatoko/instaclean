@@ -11,9 +11,11 @@ class Api::V1::BlocksController < Api::V1::BaseController
       {
         id: user.id,
         username: user.username,
-        name: user.name,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        full_name: user.full_name,
         bio: user.bio,
-        avatar: user.avatar.attached? ? user.avatar.url : nil
+        avatar: user.avatar.attached? ? Rails.application.routes.url_helpers.rails_blob_url(user.avatar, only_path: false) : nil
       }
     end
 
@@ -38,7 +40,9 @@ class Api::V1::BlocksController < Api::V1::BaseController
         blocked_user: {
           id: @user.id,
           username: @user.username,
-          name: @user.name
+          first_name: @user.first_name,
+          last_name: @user.last_name,
+          full_name: @user.full_name
         }
       }, "User has been blocked")
     else

@@ -9,10 +9,12 @@ class Api::V1::NotificationsController < Api::V1::BaseController
       {
         id: notification.id,
         type: notification.type,
-        message: notification_message(notification),
+        message: notification.message, # Use your model method
         read: notification.read_at.present?,
         created_at: notification.created_at,
-        data: notification.params # Contains the notification data
+        url: notification.notification_url, # Use your model method
+        icon: notification.notification_icon, # Use your model method
+        user: format_notification_user(notification.notification_user) # Use your model method
       }
     end
 
@@ -52,20 +54,16 @@ class Api::V1::NotificationsController < Api::V1::BaseController
 
   private
 
-  def notification_message(notification)
-    # Generate user-friendly messages based on notification type
-    case notification.type
-    when "FollowNotifier"
-      follower = notification.params[:follower]
-      "#{follower['username']} started following you"
-    when "LikeNotifier"
-      liker = notification.params[:liker]
-      "#{liker['username']} liked your post"
-    when "CommentNotifier"
-      commenter = notification.params[:commenter]
-      "#{commenter['username']} commented on your post"
-    else
-      "New notification"
-    end
+  def format_notification_user(user)
+    return nil unless user
+
+    {
+      id: user.id,
+      username: user.username,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      full_name: user.full_name,
+      avatar: user.avatar.attached? ? Rails.application.routes.url_helpers.rails_blob_url(user.avatar, only_path: false) : nil
+    }
   end
 end

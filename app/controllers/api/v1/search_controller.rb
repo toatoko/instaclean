@@ -6,46 +6,39 @@ class Api::V1::SearchController < Api::V1::BaseController
       return render_error("Search query cannot be empty", :bad_request)
     end
 
-    # Search users (excluding current user and blocked users)
-    if current_user
-      blocked_user_ids = current_user.blocking_relationships.pluck(:blocked_id)
-      blocked_by_user_ids = current_user.blocked_relationships.pluck(:blocker_id)
-      excluded_user_ids = (blocked_user_ids + blocked_by_user_ids + [ current_user.id ]).uniq
-    else
-      excluded_user_ids = []
-    end
+    # Use your User.visible_to scope for proper filtering
+    visible_users = User.visible_to(current_user)
+                       .where(
+                         "username ILIKE :q OR first_name ILIKE :q OR last_name ILIKE :q",
+                         q: "%#{@query}%"
+                       )
+                       .includes(:avatar_attachment)
+                       .limit(20)
 
-    @users = User.includes(:avatar_attachment)
-                 .where.not(id: excluded_user_ids)
-                 .where(banned_at: nil)
-                 .where(
-                   "username ILIKE :q OR first_name ILIKE :q OR last_name ILIKE :q",
-                   q: "%#{@query}%"
-                 )
-                 .limit(20)
+    # Search posts from visible users
+    visible_user_ids = User.visible_to(current_user).pluck(:id)
 
-    # Search posts (from non-blocked, non-banned users)
     @posts = Post.includes(:image_attachment, :user, user: [ :avatar_attachment ])
-                 .joins(:user)
-                 .where(users: { banned_at: nil })
-                 .where.not(user_id: excluded_user_ids)
+                 .where(user_id: visible_user_ids)
                  .where(active: true)
                  .where(
-                   "posts.description ILIKE :q OR users.username ILIKE :q OR users.first_name ILIKE :q OR users.last_name ILIKE :q",
+                   "posts.description ILIKE :q",
                    q: "%#{@query}%"
                  )
                  .limit(20)
 
     # Format users data
-    users_data = @users.map do |user|
+    users_data = visible_users.map do |user|
       {
         id: user.id,
         username: user.username,
-        name: user.name,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        full_name: user.full_name,
         bio: user.bio,
-        avatar: user.avatar.attached? ? user.avatar.url : nil,
-        followers_count: user.followers.count,
-        is_following: current_user&.following&.exists?(id: user.id) || false
+        avatar: user.avatar.attached? ? Rails.application.routes.url_helpers.rails_blob_url(user.avatar, only_path: false) : nil,
+        followers_count: user.followers_count,
+        is_following: current_user&.following?(user) || false
       }
     end
 
@@ -53,17 +46,19 @@ class Api::V1::SearchController < Api::V1::BaseController
     posts_data = @posts.map do |post|
       {
         id: post.id,
-        content: post.description,
-        images: post.image.attached? ? [ post.image.url ] : [],
-        likes_count: post.likes.count,
-        comments_count: post.comments.count,
-        is_liked: current_user && post.likes.exists?(user: current_user),
+        description: post.description,
+        images: post.image.attached? ? [ Rails.application.routes.url_helpers.rails_blob_url(post.image, only_path: false) ] : [],
+        likes_count: post.likes_count,
+        comments_count: post.comments_count,
+        is_liked: current_user && post.liked_by?(current_user),
         created_at: post.created_at,
         user: {
           id: post.user.id,
           username: post.user.username,
-          name: post.user.name,
-          avatar: post.user.avatar.attached? ? post.user.avatar.url : nil
+          first_name: post.user.first_name,
+          last_name: post.user.last_name,
+          full_name: post.user.full_name,
+          avatar: post.user.avatar.attached? ? Rails.application.routes.url_helpers.rails_blob_url(post.user.avatar, only_path: false) : nil
         }
       }
     end

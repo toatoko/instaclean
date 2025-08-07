@@ -1,4 +1,3 @@
-# app/controllers/api/v1/base_controller.rb
 class Api::V1::BaseController < ApplicationController
   # Skip CSRF token verification for API requests
   skip_before_action :verify_authenticity_token
@@ -21,9 +20,15 @@ class Api::V1::BaseController < ApplicationController
 
     if token.present?
       begin
-        # Decode JWT token (you'll need to implement this)
+        # Decode JWT token
         decoded_token = JsonWebToken.decode(token)
         @current_user = User.find(decoded_token[:user_id])
+
+        # Check if user is banned
+        if @current_user.banned?
+          render_error("Account is banned", :forbidden)
+          nil
+        end
       rescue JWT::DecodeError, ActiveRecord::RecordNotFound
         render_unauthorized
       end

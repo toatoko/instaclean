@@ -3,8 +3,13 @@ class Api::V1::CommentsController < Api::V1::BaseController
   before_action :set_comment, only: [ :destroy ]
 
   def index
-    @comments = @post.comments.includes(:user, user: [ :avatar_attachment ])
-                     .order(created_at: :desc)
+    # Only show comments from users visible to current user
+    visible_user_ids = User.visible_to(current_user).pluck(:id)
+
+    @comments = @post.comments.joins(:user)
+                     .where(user_id: visible_user_ids)
+                     .includes(:user, user: [ :avatar_attachment ])
+                     .recent
                      .page(params[:page]).per(20)
 
     comments_data = @comments.map do |comment|
@@ -15,8 +20,10 @@ class Api::V1::CommentsController < Api::V1::BaseController
         user: {
           id: comment.user.id,
           username: comment.user.username,
-          name: comment.user.name,
-          avatar: comment.user.avatar.attached? ? comment.user.avatar.url : nil
+          first_name: comment.user.first_name,
+          last_name: comment.user.last_name,
+          full_name: comment.user.full_name,
+          avatar: comment.user.avatar.attached? ? Rails.application.routes.url_helpers.rails_blob_url(comment.user.avatar, only_path: false) : nil
         }
       }
     end
@@ -25,7 +32,7 @@ class Api::V1::CommentsController < Api::V1::BaseController
       comments: comments_data,
       has_more: @comments.next_page.present?,
       current_page: @comments.current_page,
-      total_count: @post.comments.count
+      total_count: @post.comments_count
     })
   end
 
@@ -46,8 +53,10 @@ class Api::V1::CommentsController < Api::V1::BaseController
         user: {
           id: current_user.id,
           username: current_user.username,
-          name: current_user.name,
-          avatar: current_user.avatar.attached? ? current_user.avatar.url : nil
+          first_name: current_user.first_name,
+          last_name: current_user.last_name,
+          full_name: current_user.full_name,
+          avatar: current_user.avatar.attached? ? Rails.application.routes.url_helpers.rails_blob_url(current_user.avatar, only_path: false) : nil
         }
       }
 
@@ -75,6 +84,11 @@ class Api::V1::CommentsController < Api::V1::BaseController
   def set_post
     @post = Post.find_by(id: params[:post_id])
     unless @post
+      render_not_found("Post not found")
+    end
+
+    # Check if post is visible to current user
+    unless @post.user.content_visible_to?(current_user)
       render_not_found("Post not found")
     end
   end

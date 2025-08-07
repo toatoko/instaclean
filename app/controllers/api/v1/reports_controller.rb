@@ -5,7 +5,7 @@ class Api::V1::ReportsController < Api::V1::BaseController
     if @report.save
       render_success({
         report_id: @report.id,
-        status: "submitted"
+        status: @report.status
       }, "Report submitted successfully", :created)
     else
       render_error("Failed to submit report", :unprocessable_entity, @report.errors.full_messages)

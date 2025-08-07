@@ -11,11 +11,13 @@ Rails.application.routes.draw do
       delete "auth/logout", to: "authentication#logout"
       get "auth/me", to: "authentication#me"
 
-      # Users
+      # Users (consolidated with followers/following)
       resources :users, param: :username, only: [ :index, :show, :update ] do
         member do
           post :follow
           delete :unfollow
+          get :followers
+          get :following
         end
         collection do
           get :suggested
@@ -30,7 +32,7 @@ Rails.application.routes.draw do
         end
       end
 
-      # Messages/Conversations
+      # Messages/Conversations (Keep separate - they serve different purposes)
       resources :conversations, only: [ :index, :show ] do
         resources :messages, only: [ :create ]
       end
@@ -51,7 +53,7 @@ Rails.application.routes.draw do
       # Blocking
       resources :blocks, only: [ :index, :create, :destroy ]
 
-      # Reports (if needed for mobile)
+      # Reports
       resources :reports, only: [ :create ]
     end
   end
